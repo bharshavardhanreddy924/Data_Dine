@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-6 text-center" style="color: #2c3e50;">Order Management</h1>
+    
+    <!-- Order Table -->
+    <div class="overflow-x-auto shadow-lg rounded-lg">
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="py-3 px-4 border text-left">Order ID</th>
+                    <th class="py-3 px-4 border text-left">Customer</th>
+                    <th class="py-3 px-4 border text-left">Date</th>
+                    <th class="py-3 px-4 border text-left">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="py-3 px-4 border">{{ order._id }}</td>
+                    <td class="py-3 px-4 border">
+                        {% if order.customer %}
+                            <div class="flex items-center">
+                                <i class="fas fa-user-circle text-gray-600 mr-2"></i>
+                                <span>{{ order.customer.first_name }} {{ order.customer.last_name }}</span>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center">
+                                <i class="fas fa-user-slash text-gray-400 mr-2"></i>
+                                <span class="text-gray-500">Unknown Customer</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 border">
+                        {% if order.order_time %}
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-alt text-gray-600 mr-2"></i>
+                                <span>{{ order.order_time.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-times text-gray-400 mr-2"></i>
+                                <span class="text-gray-500">No date available</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 border">
+                        {% if order.total_price %}
+                            <div class="flex items-center">
+                                <i class="fas fa-rupee-sign text-green-600 mr-2"></i>
+                                <span>{{ "%.2f"|format(order.total_price) }}</span>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-circle text-gray-400 mr-2"></i>
+                                <span class="text-gray-500">Price not available</span>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+    .hover\:bg-gray-50:hover {
+        background-color: rgba(249, 250, 251, 1);
+    }
+    .transition-colors {
+        transition: background-color 0.2s ease;
+    }
+    .shadow-lg {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+    .bg-gray-800 {
+        background-color: #2c3e50;
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

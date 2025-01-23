@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-6 text-center" style="color: #2c3e50;">Inventory Management</h1>
+    
+    <!-- Add Ingredient Button -->
+    <div class="text-end mb-4">
+        <a href="{{ url_for('add_ingredient') }}" class="btn btn-success">
+            <i class="fas fa-plus-circle me-2"></i>Add New Ingredient
+        </a>
+    </div>
+
+    <!-- Inventory Table -->
+    {% if ingredients %}
+    <div class="overflow-x-auto shadow-lg rounded-lg">
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="py-3 px-4 border text-left">ID</th>
+                    <th class="py-3 px-4 border text-left">Ingredient Name</th>
+                    <th class="py-3 px-4 border text-left">Quantity</th>
+                    <th class="py-3 px-4 border text-left">Unit</th>
+                    <th class="py-3 px-4 border text-left">Reorder Level</th>
+                    <th class="py-3 px-4 border text-left">Expiry Date</th>
+                    <th class="py-3 px-4 border text-left">Last Restocked</th>
+                    <th class="py-3 px-4 border text-left">Supplier</th>
+                    <th class="py-3 px-4 border text-left">Unit Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ingredient in ingredients %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="py-3 px-4 border">{{ ingredient['_id'] }}</td>
+                    <td class="py-3 px-4 border">{{ ingredient['IngrName'] }}</td>
+                    <td class="py-3 px-4 border">{{ ingredient['QuantityInStock'] }}</td>
+                    <td class="py-3 px-4 border">{{ ingredient['Unit'] }}</td>
+                    <td class="py-3 px-4 border">{{ ingredient['ReorderLevel'] }}</td>
+                    <td class="py-3 px-4 border">
+                        {% if ingredient['ExpiryDate'] %}
+                            {{ ingredient['ExpiryDate'].strftime('%Y-%m-%d') }}
+                        {% else %}
+                            <span class="text-gray-500">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 border">
+                        {% if ingredient['LastRestockedDate'] %}
+                            {{ ingredient['LastRestockedDate'].strftime('%Y-%m-%d') }}
+                        {% else %}
+                            <span class="text-gray-500">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 border">{{ ingredient['Supplier'] }}</td>
+                    <td class="py-3 px-4 border">
+                        <div class="flex items-center">
+                            <span>₹{{ ingredient['UnitCost'] }}</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-warning text-center py-4">
+        <i class="fas fa-exclamation-triangle text-yellow-500 me-2"></i>
+        No ingredients found in the inventory.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Styles -->
+<style>
+    .hover\:bg-gray-50:hover {
+        background-color: rgba(249, 250, 251, 1);
+    }
+    .transition-colors {
+        transition: background-color 0.2s ease;
+    }
+    .shadow-lg {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+    .bg-gray-800 {
+        background-color: #2c3e50;
+    }
+    .alert {
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{{ title }}</h2>
+    
+    <!-- Customer Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Customers</h5>
+                    <h2 class="card-text">{{ customers|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer List Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Customer Details</h5>
+        </div>
+        <div class="card-body">
+            {% if customers %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Total Orders</th>
+                            <th>Total Spent</th>
+                            <th>Last Order</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td>{{ customer.full_name }}</td>
+                            <td>{{ customer.username }}</td>
+                            <td>{{ customer.phone_number or 'N/A' }}</td>
+                            <td>{{ customer.total_orders }}</td>
+                            <td><td>₹{{ "%.2f"|format(customer.total_spent or 0) }}</td>
+                            <td>
+                                {% if customer.last_order_date %}
+                                    {{ customer.last_order_date.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    No orders yet
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No customers found in the database.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

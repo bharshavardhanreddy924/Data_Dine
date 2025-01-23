@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0-beta2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #d9534f;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+            font-weight: 600;
+        }
+        .nav-link:hover {
+            color: #ffc107 !important;
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none;
+        }
+        .chatbot-header {
+            background: #d9534f;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .chatbot-body {
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        .chatbot-footer {
+            display: flex;
+            padding: 10px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+        }
+        .chatbot-footer input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .chatbot-footer button {
+            background: #d9534f;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .chatbot-footer button:hover {
+            background: #c9302c;
+        }
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #d9534f;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .chatbot-toggle:hover {
+            background: #c9302c;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.bot {
+            text-align: left;
+        }
+        .message p {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        .message.user p {
+            background: #d9534f;
+            color: #fff;
+        }
+        .message.bot p {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Restaurant Management</a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="login-link">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="register-link">Register</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 pt-5">
+        <h1 class="text-center mb-4">Welcome to Restaurant Management</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Create Order</h2>
+                <form id="create-order-form">
+                    <div class="mb-3">
+                        <label for="order-details" class="form-label">Order Details</label>
+                        <textarea class="form-control" id="order-details" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Order</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h2>Order Status</h2>
+                <div id="order-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Toggle Button -->
+    <button class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
+
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbot-container">
+        <div class="chatbot-header">
+            Restaurant Chatbot
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="message bot">
+                <p>Hi! How can I help you today?</p>
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="chatbot-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Chatbot Functions
+        function toggleChatbot() {
+            const chatbotContainer = document.getElementById('chatbot-container');
+            chatbotContainer.style.display = chatbotContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatbot-input');
+            const message = input.value.trim();
+            if (message === "") return;
+
+            // Display user message
+            const chatbotBody = document.getElementById('chatbot-body');
+            chatbotBody.innerHTML += `
+                <div class="message user">
+                    <p>${message}</p>
+                </div>
+            `;
+
+            // Clear input
+            input.value = '';
+
+            // Fetch bot response
+            fetch('/api/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatbotBody.innerHTML += `
+                    <div class="message bot">
+                        <p>${data.response}</p>
+                    </div>
+                `;
+                // Scroll to bottom
+                chatbotBody.scrollTop = chatbotBody.scrollHeight;
+            });
+        }
+
+        // Create Order
+        document.getElementById('create-order-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const orderDetails = document.getElementById('order-details').value;
+
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ details: orderDetails }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Order created successfully!');
+                document.getElementById('order-details').value = '';
+            });
+        });
+
+        // User Authentication
+        document.getElementById('login-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            const username = prompt('Enter your username:');
+            const password = prompt('Enter your password:');
+
+            fetch('/api/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Login successful!');
+                } else {
+                    alert('Invalid credentials');
+                }
+            });
+        });
+
+        document.getElementById('register-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            const username = prompt('Enter a username:');
+            const password = prompt('Enter a password:');
+
+            fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('User registered successfully!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

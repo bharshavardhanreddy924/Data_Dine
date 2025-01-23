@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="text-center">Employees</h3>
+<a href="/admin/employees/add" class="btn btn-success mb-3">Add Employee</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone Number</th>
+            <th>Designation</th>
+            <th>Hire Date</th>
+            <th>Salary</th>
+            <th>Work Schedule</th>
+            <th>Age</th>
+            <th>DOB</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for employee in employees %}
+        <tr>
+            <td>{{ employee.FirstName }}</td>
+            <td>{{ employee.LastName }}</td>
+            <td>{{ employee.PhoneNumber }}</td>
+            <td>{{ employee.Designation }}</td>
+            <td>{{ employee.HireDate }}</td>
+            <td>{{ employee.Salary }}</td>
+            <td>{{ employee.WorkSchedule }}</td>
+            <td>{{ employee.Age }}</td>
+            <td>{{ employee.DOB }}</td>
+            <td>
+                <a href="/admin/employees/update/{{ employee._id }}" class="btn btn-primary btn-sm w-100 mb-2">Update</a>
+                <a href="/admin/employees/delete/{{ employee._id }}" class="btn btn-danger btn-sm w-100">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

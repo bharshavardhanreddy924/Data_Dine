@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-3">
+    <h2 class="text-center mb-3" style="color: #d9534f; font-weight: 700; font-size: 1.5rem;">Our Menu</h2>
+
+    <!-- Order History and Register Buttons -->
+    <div class="mb-3 text-center">
+        <a href="{{ url_for('customer_orders') }}" class="btn btn-outline-danger btn-sm">View Order History</a>
+        <a href="{{ url_for('register_permanent_customer') }}" class="btn btn-outline-success btn-sm ms-2">
+            <i class="fas fa-user-plus me-1"></i>Register as Permanent Customer
+        </a>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section mb-3">
+        <div class="accordion" id="filterAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="filterHeading">
+                    <button class="accordion-button btn btn-danger btn-sm" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                        <i class="fas fa-filter me-2"></i> Filters
+                    </button>
+                </h2>
+                <div id="filterCollapse" class="accordion-collapse collapse" aria-labelledby="filterHeading" 
+                     data-bs-parent="#filterAccordion">
+                    <div class="accordion-body p-3 bg-white rounded shadow">
+                        <form action="{{ url_for('customer_menu') }}" method="get">
+                            <!-- Cuisine Filter -->
+                            <div class="cuisine-filter mb-3">
+                                <h3 class="text-sm font-semibold mb-2">Cuisine</h3>
+                                <div class="row row-cols-2 row-cols-md-3 g-2">
+                                    {% for cuisine in cuisines %}
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="cuisine" value="{{ cuisine }}" 
+                                                   id="cuisine-{{ cuisine|lower }}" 
+                                                   {% if cuisine in selected_cuisines %}checked{% endif %}
+                                                   class="form-check-input">
+                                            <label for="cuisine-{{ cuisine|lower }}" 
+                                                   class="form-check-label text-sm">{{ cuisine }}</label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Allergen Filter -->
+                            <div class="allergen-filter mb-3">
+                                <h3 class="text-sm font-semibold mb-2">Exclude Allergens</h3>
+                                <div class="row row-cols-2 row-cols-md-3 g-2">
+                                    {% for allergen in available_allergens %}
+                                    <div class="col">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="allergen" value="{{ allergen }}" 
+                                                   id="allergen-{{ allergen|lower }}" 
+                                                   {% if allergen in selected_allergens %}checked{% endif %}
+                                                   class="form-check-input allergen-checkbox">
+                                            <label for="allergen-{{ allergen|lower }}" 
+                                                   class="form-check-label text-sm">{{ allergen }}</label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-danger btn-sm">Apply Filters</button>
+                                <a href="{{ url_for('customer_menu') }}" 
+                                   class="btn btn-outline-secondary btn-sm ms-2">Clear Filters</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="row row-cols-1 row-cols-md-3 g-3" id="menuGrid">
+        {% for dish in dishes %}
+        <div class="col menu-item" data-category="{{ dish.Category }}" 
+             data-allergens="{{ dish.Allergens|tojson }}">
+            <div class="card h-100 shadow-sm">
+                {% if dish.ImagePath %}
+                <img src="{{ dish.ImagePath }}" class="card-img-top dish-image" alt="{{ dish.DishName }}" 
+                     style="height: 120px; object-fit: cover;">
+                {% else %}
+                <img src="{{ url_for('static', filename='default_image.jpg') }}" class="card-img-top dish-image" 
+                     alt="No Image" style="height: 120px; object-fit: cover;">
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #d9534f; font-size: 1rem;">{{ dish.DishName }}</h5>
+                    <p class="card-text" style="font-size: 0.8rem;">{{ dish.Description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            {{ dish.Category }} | {{ dish.Cuisine }} | {{ dish.PortionSize }}
+                        </small>
+                    </p>
+                    <p class="card-text">
+                        <strong style="font-size: 0.9rem;">₹{{ dish.Price }}</strong>
+                    </p>
+                    
+                    <!-- Allergens Display -->
+                    {% set active_allergens = [] %}
+                    {% if dish.Allergens %}
+                        {% for allergen, has in dish.Allergens.items() %}
+                            {% if has %}
+                                {% set _ = active_allergens.append(allergen) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if active_allergens|length > 0 %}
+                        <p class="card-text">
+                            <small class="text-warning" style="font-size: 0.75rem;">
+                                Contains: {{ active_allergens|join(', ') }}
+                            </small>
+                        </p>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Add to Cart Form -->
+                    <form method="POST" action="{{ url_for('add_to_cart') }}" class="mt-2">
+                        <input type="hidden" name="dish_id" value="{{ dish._id }}">
+                        <div class="input-group">
+                            <input type="number" name="quantity" value="1" min="1" max="10" 
+                                   class="form-control form-control-sm" style="font-size: 0.8rem;" required>
+                            <button type="submit" class="btn btn-danger btn-sm" style="font-size: 0.8rem;">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Floating Cart Button -->
+    <!-- AI Assistant Button -->
+    {% if show_chatbot %}
+    <div class="position-fixed bottom-0 end-0 mb-5 me-3">
+        <a href="{{ url_for('chatbot') }}" 
+           class="btn btn-danger btn-lg shadow d-flex align-items-center gap-3 rounded-pill px-4 py-2">
+            <span class="fs-5 fw-bold">AI Assistant</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Styles -->
+<style>
+    /* Card and Image Animations */
+    .dish-image {
+        transition: transform 0.3s ease;
+    }
+    .card:hover .dish-image {
+        transform: scale(1.03);
+    }
+    .card {
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Filter Accordion Styles */
+    .accordion-button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    .accordion-body {
+        padding: 0.5rem;
+    }
+    .text-sm {
+        font-size: 0.8rem;
+    }
+
+    /* Button Styles */
+    .btn-danger {
+        background-color: #d9534f;
+        border-color: #d9534f;
+        transition: all 0.3s ease;
+    }
+    .btn-danger:hover {
+        background-color: #c9302c;
+        border-color: #c9302c;
+        transform: translateY(-1px);
+    }
+    .btn-outline-danger {
+        color: #d9534f;
+        border-color: #d9534f;
+    }
+    .btn-outline-danger:hover {
+        background-color: #d9534f;
+        color: white;
+    }
+    .btn-outline-success {
+        color: #28a745;
+        border-color: #28a745;
+    }
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+
+    /* Floating Buttons */
+    .position-fixed {
+        z-index: 1000;
+    }
+    
+    /* Form Controls */
+    .form-control-sm:focus {
+        border-color: #d9534f;
+        box-shadow: 0 0 0 0.2rem rgba(217, 83, 79, 0.25);
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding-bottom: 80px;
+        }
+        .card-title {
+            font-size: 0.9rem !important;
+        }
+        .card-text {
+            font-size: 0.75rem !important;
+        }
+    }
+</style>
+
+<!-- Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function filterMenu() {
+        const selectedCategory = document.getElementById('categoryFilter')?.value || 'all';
+        const selectedAllergens = Array.from(document.querySelectorAll('.allergen-checkbox:checked'))
+            .map(checkbox => checkbox.value);
+
+        const menuItems = document.querySelectorAll('.menu-item');
+
+        menuItems.forEach(item => {
+            const category = item.getAttribute('data-category');
+            const allergens = JSON.parse(item.getAttribute('data-allergens') || '{}');
+
+            const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+            const containsSelectedAllergens = selectedAllergens.some(allergen => allergens[allergen] === true);
+
+            item.style.display = matchesCategory && !containsSelectedAllergens ? 'block' : 'none';
+        });
+    }
+
+    // Initialize filters
+    filterMenu();
+
+    // Add event listeners for filter changes
+    document.querySelectorAll('.allergen-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', filterMenu);
+    });
+
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterMenu);
+    }
+
+    // Initialize Bootstrap components
+    if (typeof bootstrap !== 'undefined') {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+});
+</script>
+{% endblock %}

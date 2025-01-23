@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="text-center mb-4" style="color: #d9534f; font-weight: 700; font-size: 2rem;">Your Cart</h2>
+    
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Cart Items -->
+            {% for item in cart_items %}
+            <div class="card mb-3 shadow-sm animate__animated animate__fadeIn">
+                <div class="row g-0">
+                    {% if item.dish.Image %}
+                    <div class="col-md-3">
+                        <img src="{{ url_for('static', filename='images/' + item.dish.Image) }}"
+                             class="img-fluid rounded-start dish-image" alt="{{ item.dish.DishName }}"
+                             style="height: 150px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    <div class="col-md-9">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: #2c3e50; font-size: 1.3rem;">{{ item.dish.DishName }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    {{ item.dish.Category }} | {{ item.dish.PortionSize }}
+                                </small>
+                            </p>
+                            <p class="card-text">
+                                Price per item: <span class="text-danger">₹{{ item.dish.Price }}</span>
+                            </p>
+                            
+                            <!-- Update Quantity Form -->
+                            <form method="POST" action="{{ url_for('update_cart') }}" 
+                                  class="d-flex align-items-center">
+                                <input type="hidden" name="dish_id" value="{{ item.dish._id }}">
+                                <div class="input-group" style="max-width: 150px;">
+                                    <button type="button" class="btn btn-outline-secondary quantity-btn" onclick="decrementQuantity(this)">-</button>
+                                    <input type="number" name="quantity" value="{{ item.quantity }}"
+                                           min="1" max="10" class="form-control quantity-input">
+                                    <button type="button" class="btn btn-outline-secondary quantity-btn" onclick="incrementQuantity(this)">+</button>
+                                </div>
+                                <button type="submit" class="btn btn-outline-danger ms-3">Update</button>
+                                <p class="ms-3 mb-0">
+                                    <strong>Subtotal: <span class="text-danger">₹{{ item.total }}</span></strong>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Cart Actions -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('customer_menu') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                </a>
+                <a href="{{ url_for('clear_cart') }}" class="btn btn-outline-danger btn-lg">
+                    <i class="fas fa-trash me-2"></i> Clear Cart
+                </a>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #2c3e50; font-size: 1.3rem;">Order Summary</h5>
+                    <p class="card-text">
+                        Total Items: <span class="text-danger">{{ cart_items|length }}</span>
+                    </p>
+                    <p class="card-text">
+                        <strong>Total Amount: <span class="text-danger">₹{{ total }}</span></strong>
+                    </p>
+                    <form method="POST" action="{{ url_for('place_order') }}">
+                        <div class="mb-3">
+                            <label for="order_type" class="form-label">Order Type</label>
+                            <select name="order_type" id="order_type" class="form-select" required>
+                                <option value="Delivery">Delivery</option>
+                                <option value="Pickup">Dine in</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="payment_type" class="form-label">Payment Method</label>
+                            <select name="payment_type" id="payment_type" class="form-select" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="UPI">UPI</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="special_instructions" class="form-label">Special Instructions</label>
+                            <textarea name="special_instructions" id="special_instructions" 
+                                      class="form-control" rows="2" placeholder="Add notes..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
+                            <i class="fas fa-check-circle me-2"></i> Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center animate__animated animate__fadeIn">
+        <h4 style="color: #2c3e50;">Your cart is empty</h4>
+        <a href="{{ url_for('customer_menu') }}" class="btn btn-primary btn-lg mt-3">
+            <i class="fas fa-utensils me-2"></i> Browse Menu
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .dish-image {
+        transition: transform 0.3s ease;
+    }
+    .card:hover .dish-image {
+        transform: scale(1.03);
+    }
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border: none;
+        background: #f8f9fa;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .quantity-btn:hover {
+        background: #e9ecef;
+    }
+    .quantity-input {
+        width: 40px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+    .btn-lg {
+        padding: 0.5rem 1.5rem;
+        font-size: 1rem;
+    }
+</style>
+
+<script>
+function incrementQuantity(btn) {
+    const input = btn.parentElement.querySelector('.quantity-input');
+    if (input.value < 10) input.value = parseInt(input.value) + 1;
+}
+
+function decrementQuantity(btn) {
+    const input = btn.parentElement.querySelector('.quantity-input');
+    if (input.value > 1) input.value = parseInt(input.value) - 1;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h3 class="text-center">Menu</h3>
+    <a href="{{ url_for('add_dish') }}" class="btn btn-success mb-3">Add Dish</a>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Dish Name</th>
+                    <th>Price</th>
+                    <th>Portion Size</th>
+                    <th>Cuisine</th>
+                    <th>Category</th>
+                    <th>Preparation Time</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dish in dishes %}
+                <tr style="height: 120px;"> <!-- Set a fixed height for each row -->
+                    <td>{{ dish.DishName }}</td>
+                    <td>₹{{ "%.2f"|format(dish.Price) }}</td>
+                    <td>{{ dish.PortionSize }}</td>
+                    <td>{{ dish.Cuisine }}</td>
+                    <td>{{ dish.Category }}</td>
+                    <td>{{ dish.PreparationTime }} mins</td>
+                    <td>
+                        {% if dish.Image %}
+                        <img src="{{ url_for('static', filename='images/' + dish.Image) }}" 
+                             alt="{{ dish.DishName }}" 
+                             style="width: 100px; height: 100px; object-fit: cover;"> <!-- Fixed size and object-fit to cover -->
+                        {% else %}
+                        <div style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
+                            No Image
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <!-- Edit Button -->
+                        <a href="{{ url_for('edit_dish', dish_id=dish._id) }}" 
+                           class="btn btn-primary btn-sm w-100 mb-2">Edit</a>
+                        <!-- Delete Button -->
+                        <button type="button" 
+                                class="btn btn-danger btn-sm w-100" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#deleteModal{{ dish._id }}">
+                            Delete
+                        </button>
+                        <!-- Delete Confirmation Modal -->
+                        <div class="modal fade" id="deleteModal{{ dish._id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete "{{ dish.DishName }}"?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ url_for('delete_dish', dish_id=dish._id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger w-100">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

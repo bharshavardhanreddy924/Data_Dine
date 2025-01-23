@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Checkout</h1>
+    </header>
+
+    <main>
+        <!-- Order Summary Section -->
+        <section>
+            <h2>Order Summary</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dish</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>{{ item.DishName }}</td>
+                        <td>{{ item.Quantity }}</td>
+                        <td>${{ item.Price }}</td>
+                        <td>${{ item.Quantity * item.Price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3">Subtotal</th>
+                        <th>${{ subtotal }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="3">Tax (10%)</th>
+                        <th>${{ tax }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="3">Total</th>
+                        <th>${{ total }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+
+        <!-- Place Order Section -->
+        <section>
+            <h2>Place Your Order</h2>
+            <form action="{{ url_for('place_order') }}" method="POST">
+                <input type="hidden" name="subtotal" value="{{ subtotal }}">
+                <input type="hidden" name="tax" value="{{ tax }}">
+                <input type="hidden" name="total" value="{{ total }}">
+                <button type="submit">Place Order</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; {{ current_year }} Resta. All rights reserved.</p>
+    </footer>
+</body>
+</html>

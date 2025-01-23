@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="text-center">Update Employee</h3>
+<form method="POST">
+    <div class="form-group">
+        <label>First Name</label>
+        <input type="text" name="FirstName" class="form-control" value="{{ employee.FirstName }}" required>
+    </div>
+    <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" name="LastName" class="form-control" value="{{ employee.LastName }}" required>
+    </div>
+    <div class="form-group">
+        <label>Phone Number</label>
+        <input type="text" name="PhoneNumber" class="form-control" value="{{ employee.PhoneNumber }}" required>
+    </div>
+    <div class="form-group">
+        <label>Designation</label>
+        <input type="text" name="Designation" class="form-control" value="{{ employee.Designation }}" required>
+    </div>
+    <div class="form-group">
+        <label>Hire Date</label>
+        <input type="date" name="HireDate" class="form-control" value="{{ employee.HireDate }}" required>
+    </div>
+    <div class="form-group">
+        <label>Salary</label>
+        <input type="number" name="Salary" class="form-control" value="{{ employee.Salary }}" required>
+    </div>
+    <div class="form-group">
+        <label>Work Schedule</label>
+        <select name="WorkSchedule" class="form-control" required>
+            <option value="7 AM - 3 PM" {% if employee.WorkSchedule == "7 AM - 3 PM" %}selected{% endif %}>7 AM - 3 PM</option>
+            <option value="3 PM - 7 PM" {% if employee.WorkSchedule == "3 PM - 7 PM" %}selected{% endif %}>3 PM - 7 PM</option>
+            <option value="7 PM - 11 PM" {% if employee.WorkSchedule == "7 PM - 11 PM" %}selected{% endif %}>7 PM - 11 PM</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Age</label>
+        <input type="number" name="Age" class="form-control" value="{{ employee.Age }}" required>
+    </div>
+    <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" name="DOB" class="form-control" value="{{ employee.DOB }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Employee</button>
+</form>
+{% endblock %}

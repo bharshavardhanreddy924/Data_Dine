@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid p-4">
+    <h3 class="text-center mb-4" style="color: #d9534f; font-weight: 700; font-size: 2rem;">Admin Dashboard</h3>
+
+    <!-- Cards Section -->
+    <div class="row g-4">
+        <!-- Dishes Card -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-lg border-0 animate__animated animate__fadeIn">
+                <div class="card-body text-center">
+                    <i class="fas fa-utensils fa-3x mb-3" style="color: #d9534f;"></i>
+                    <h5 class="card-title mb-3" style="color: #333; font-weight: 600;">Dishes</h5>
+                    <p class="card-text display-6 mb-3" style="color: #555;">{{ dishes_count }}</p>
+                    <a href="/admin/menu" class="btn btn-danger btn-lg w-100">View Dishes</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Card -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-lg border-0 animate__animated animate__fadeIn animate__delay-1s">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart fa-3x mb-3" style="color: #5cb85c;"></i>
+                    <h5 class="card-title mb-3" style="color: #333; font-weight: 600;">Orders</h5>
+                    <p class="card-text display-6 mb-3" style="color: #555;">{{ orders_count }}</p>
+                    <a href="/admin/orders" class="btn btn-success btn-lg w-100">View Orders</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ingredients Card -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-lg border-0 animate__animated animate__fadeIn animate__delay-2s">
+                <div class="card-body text-center">
+                    <i class="fas fa-box-open fa-3x mb-3" style="color: #f0ad4e;"></i>
+                    <h5 class="card-title mb-3" style="color: #333; font-weight: 600;">Ingredients</h5>
+                    <p class="card-text display-6 mb-3" style="color: #555;">{{ ingredients_count }}</p>
+                    <a href="/admin/inventory" class="btn btn-warning btn-lg w-100">View Inventory</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Card -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-lg border-0 animate__animated animate__fadeIn animate__delay-3s">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3" style="color: #5bc0de;"></i>
+                    <h5 class="card-title mb-3" style="color: #333; font-weight: 600;">Customers</h5>
+                    <p class="card-text display-6 mb-3" style="color: #555;">{{ low_stock }}</p>
+                    <a href="/admin/customers" class="btn btn-info btn-lg w-100">View Customers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row -->
+    <div class="row g-4 mt-4">
+        <!-- Employees Card -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-lg border-0 animate__animated animate__fadeIn animate__delay-4s">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-tie fa-3x mb-3" style="color: #d9534f;"></i>
+                    <h5 class="card-title mb-3" style="color: #333; font-weight: 600;">Employees</h5>
+                    <p class="card-text display-6 mb-3" style="color: #555;">{{ employees_count }}</p>
+                    <a href="/admin/employees" class="btn btn-danger btn-lg w-100">Manage Employees</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Chatbot Card -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-lg border-0 animate__animated animate__fadeIn animate__delay-5s">
+                <div class="card-body text-center">
+                    <i class="fas fa-robot fa-3x mb-3" style="color: #6f42c1;"></i>
+                    <h5 class="card-title mb-3" style="color: #333; font-weight: 600;">Management Chatbot</h5>
+                    <p class="card-text mb-3" style="color: #555;">Get assistance with management tasks</p>
+                    <a href="{{ url_for('admin_chatbot') }}" class="btn btn-primary btn-lg w-100">Open Chatbot</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .btn {
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    .animate__animated {
+        animation-duration: 1s;
+    }
+</style>
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+{% endblock %}

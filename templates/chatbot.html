@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+    {% block content %}
+    <div class="container mx-auto px-4 py-6">
+        <h1 class="text-2xl font-bold mb-6">Restaurant Management Chatbot</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div id="chat-box" class="h-96 overflow-y-auto mb-4 p-4 border rounded-lg">
+                <div class="mb-4">
+                    <strong class="text-blue-600">Assistant:</strong>
+                    <p>Hello! I'm your restaurant management assistant. How can I help you today?</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <input type="text" 
+                       id="query-input" 
+                       class="flex-1 p-2 border rounded"
+                       placeholder="Ask about menu, orders, inventory, employees, or customers...">
+                <button onclick="sendQuery()" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Send
+                </button>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-600">
+                <p>Example queries:</p>
+                <ul class="list-disc ml-5">
+                    <li>"Show me today's orders"</li>
+                    <li>"List all vegetarian dishes"</li>
+                    <li>"Check inventory status"</li>
+                    <li>"Show top customers this month"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function sendQuery() {
+        const input = document.getElementById('query-input');
+        const chatBox = document.getElementById('chat-box');
+        const query = input.value.trim();
+        
+        if (!query) return;
+        
+        // Add user query to chat
+        chatBox.innerHTML += `
+            <div class="mb-4">
+                <strong class="text-green-600">You:</strong>
+                <p>${query}</p>
+            </div>
+        `;
+        
+        // Send query to server
+        fetch('/admin/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({query: query})
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatBox.innerHTML += `
+                <div class="mb-4">
+                    <strong class="text-blue-600">Assistant:</strong>
+                    <p>${data.response}</p>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(error => {
+            chatBox.innerHTML += `
+                <div class="mb-4 text-red-600">
+                    <strong>Error:</strong>
+                    <p>${error}</p>
+                </div>
+            `;
+        });
+        
+        input.value = '';
+    }
+    
+    // Send query on Enter key
+    document.getElementById('query-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendQuery();
+        }
+    });
+    </script>
+    {% endblock %}

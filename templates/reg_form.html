@@ -1,0 +1,115 @@
+<!-- templates/register.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label>User Type:</label>
+                <select name="user_type" id="user_type" required onchange="toggleFields()">
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin/Employee</option>
+                </select>
+            </div>
+
+            <!-- Common Fields -->
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>First Name:</label>
+                <input type="text" name="first_name" required>
+            </div>
+            <div class="form-group">
+                <label>Last Name:</label>
+                <input type="text" name="last_name" required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="tel" name="phone_number" required>
+            </div>
+
+            <!-- Admin/Employee Fields -->
+            <div id="admin-fields" style="display: none;">
+                <div class="form-group">
+                    <label>Employee ID:</label>
+                    <input type="text" name="employee_id">
+                </div>
+                <div class="form-group">
+                    <label>Designation:</label>
+                    <input type="text" name="designation">
+                </div>
+                <div class="form-group">
+                    <label>Hire Date:</label>
+                    <input type="date" name="hire_date">
+                </div>
+                <div class="form-group">
+                    <label>Salary:</label>
+                    <input type="number" name="salary" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Work Schedule:</label>
+                    <input type="text" name="work_schedule">
+                </div>
+            </div>
+
+            <!-- Customer Fields -->
+            <div id="customer-fields">
+                <div class="form-group">
+                    <label>Date of Birth:</label>
+                    <input type="date" name="dob" required>
+                </div>
+                <div class="form-group">
+                    <label>Age:</label>
+                    <input type="number" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label>Diet Preferences:</label>
+                    <select name="diet_preferences">
+                        <option value="veg">Vegetarian</option>
+                        <option value="non-veg">Non-Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Allergies:</label>
+                    {% for allergen in allergens %}
+                    <div class="checkbox">
+                        <input type="checkbox" name="allergies" value="{{ allergen._id }}">
+                        <label>{{ allergen.allergen_name }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const userType = document.getElementById('user_type').value;
+            const adminFields = document.getElementById('admin-fields');
+            const customerFields = document.getElementById('customer-fields');
+            
+            if (userType === 'admin') {
+                adminFields.style.display = 'block';
+                customerFields.style.display = 'none';
+            } else {
+                adminFields.style.display = 'none';
+                customerFields.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

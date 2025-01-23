@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Elegant Header -->
+    <div class="header-section mb-4">
+        <div class="text-center">
+            <h2 class="main-title">Your Dining Journey</h2>
+            <div class="title-decoration">
+                <span class="line"></span>
+                <i class="fas fa-utensils icon"></i>
+                <span class="line"></span>
+            </div>
+        </div>
+        <div class="refresh-button">
+            <a href="{{ url_for('order_history') }}" class="btn-refresh">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+            </a>
+        </div>
+    </div>
+    
+    {% if orders %}
+        <div class="orders-timeline">
+            {% for order in orders %}
+            <div class="timeline-item">
+                <div class="order-card">
+                    <!-- Order Header -->
+                    <div class="order-header">
+                        <div class="order-meta">
+                            <span class="order-id">
+                                <i class="fas fa-receipt"></i>
+                                Order #{{ order._id }}
+                            </span>
+                            <span class="order-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                {{ order.order_time|format_order_date }}
+                            </span>
+                            <span class="order-total">
+                                <i class="fas fa-rupee-sign"></i>
+                                {{ "%.2f"|format(order.total_price) }}
+                            </span>
+                        </div>
+                        <div class="order-type-badge {{ order.order_type.lower() }}">
+                            {{ order.order_type }}
+                        </div>
+                    </div>
+
+                    <!-- Order Content -->
+                    <div class="order-content">
+                        <div class="order-details">
+                            <div class="detail-item">
+                                <i class="fas fa-credit-card"></i>
+                                <span>{{ order.payment_type }}</span>
+                            </div>
+                            {% if order.special_instructions %}
+                            <div class="detail-item">
+                                <i class="fas fa-comment-alt"></i>
+                                <span>{{ order.special_instructions }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Order Items Table -->
+                        <div class="order-items">
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.dishes %}
+                                    <tr>
+                                        <td>
+                                            <div class="dish-name">{{ item.dish_name }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="quantity">{{ item.quantity }}</div>
+                                        </td>
+                                        <td>₹{{ "%.2f"|format(item.unit_price) }}</td>
+                                        <td>₹{{ "%.2f"|format(item.subtotal) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3">Total Amount</td>
+                                        <td class="total-amount">₹{{ "%.2f"|format(order.total_price) }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-content">
+                <i class="fas fa-clipboard-list empty-icon"></i>
+                <h3>No Orders Yet</h3>
+                <p>Start your culinary journey with us today!</p>
+                <a href="{{ url_for('customer_menu') }}" class="btn-browse">
+                    <i class="fas fa-utensils"></i>
+                    Browse Menu
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Floating Action Button -->
+<a href="{{ url_for('customer_menu') }}" class="fab">
+    <i class="fas fa-plus"></i>
+    <span class="fab-tooltip">New Order</span>
+</a>
+
+<style>
+/* Typography and General Styles */
+.container {
+    max-width: 1200px;
+}
+
+/* Elegant Header */
+.header-section {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.main-title {
+    font-size: 2rem;
+    font-weight: 300;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.title-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.title-decoration .line {
+    height: 1px;
+    width: 100px;
+    background: linear-gradient(90deg, transparent, #d9534f, transparent);
+}
+
+.title-decoration .icon {
+    color: #d9534f;
+    font-size: 1.2rem;
+}
+
+.btn-refresh {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid #d9534f;
+    color: #d9534f;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-refresh:hover {
+    background: #d9534f;
+    color: white;
+}
+
+/* Timeline and Cards */
+.orders-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 1.5rem;
+    width: 1px;
+    height: calc(100% + 1.5rem);
+    background: linear-gradient(to bottom, #d9534f 0%, transparent 100%);
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -2.35rem;
+    top: 1.5rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: #d9534f;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #d9534f;
+}
+
+.order-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Order Header */
+.order-header {
+    background: linear-gradient(45deg, #d9534f, #f05d57);
+    padding: 1rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-meta {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.order-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.order-type-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Order Content */
+.order-content {
+    padding: 1rem;
+}
+
+.order-details {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Items Table */
+.items-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.items-table th {
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid #f8f9fa;
+    font-size: 0.9rem;
+}
+
+.items-table td {
+    padding: 0.75rem;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.items-table tbody tr {
+    background: #f8f9fa;
+    transition: transform 0.2s ease;
+}
+
+.items-table tbody tr:hover {
+    transform: scale(1.01);
+}
+
+.dish-name {
+    font-weight: 500;
+}
+
+.quantity {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.total-amount {
+    font-weight: 600;
+    color: #d9534f;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.empty-state-content {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #d9534f;
+    margin-bottom: 1rem;
+}
+
+.btn-browse {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: #d9534f;
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-browse:hover {
+    background: #c9302c;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Floating Action Button */
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    background: #d9534f;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 3px 15px rgba(217, 83, 79, 0.3);
+    transition: all 0.3s ease;
+}
+
+.fab:hover {
+    transform: scale(1.1);
+    color: white;
+}
+
+.fab-tooltip {
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.fab:hover .fab-tooltip {
+    opacity: 1;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+// Initialize animation when elements come into view
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, {
+    threshold: 0.1
+});
+
+document.querySelectorAll('.timeline-item').forEach(item => {
+    observer.observe(item);
+});
+
+// Add hover effect for table rows
+document.querySelectorAll('.items-table tbody tr').forEach(row => {
+    row.addEventListener('mouseover', () => {
+        row.style.transform = 'scale(1.01)';
+    });
+    row.addEventListener('mouseout', () => {
+        row.style.transform = 'scale(1)';
+    });
+});
+</script>
+{% endblock %}

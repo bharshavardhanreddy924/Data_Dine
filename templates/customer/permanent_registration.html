@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register as Permanent Customer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0-beta2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            align-items: flex-start; /* Changed from center to flex-start */
+            justify-content: center;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px; /* Smaller container */
+            width: 90%; /* Responsive width */
+            animation: fadeInUp 1s ease-in-out;
+            margin-top: 5vh; /* 30% from the top */
+        }
+        h1 {
+            color: #d9534f;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .form-control:focus {
+            border-color: #d9534f;
+            box-shadow: 0 0 6px rgba(217, 83, 79, 0.3);
+        }
+        .btn-primary {
+            background-color: #d9534f;
+            border-color: #d9534f;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background-color: #c9302c;
+            border-color: #c9302c;
+            transform: translateY(-2px);
+        }
+        .alert {
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+        .mt-3 {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        .mt-3 a {
+            color: #d9534f;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .mt-3 a:hover {
+            text-decoration: underline;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container animate__animated animate__fadeInUp">
+        <h1>Register as Permanent Customer</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        
+        <form method="POST" class="space-y-4">
+            <!-- Pre-filled Information -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" value="{{ user.username }}" class="form-control" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="phone_number" class="form-label">Phone Number</label>
+                <input type="text" value="{{ user.phone_number }}" class="form-control" readonly>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address *</label>
+                <input type="email" name="email" id="email" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Delivery Address *</label>
+                <textarea name="address" id="address" required class="form-control" rows="3"></textarea>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="city" class="form-label">City *</label>
+                    <input type="text" name="city" id="city" required class="form-control">
+                </div>
+                <div class="col">
+                    <label for="state" class="form-label">State *</label>
+                    <input type="text" name="state" id="state" required class="form-control">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="postal_code" class="form-label">Postal Code *</label>
+                <input type="text" name="postal_code" id="postal_code" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="diet_preference" class="form-label">Dietary Preference</label>
+                <select name="diet_preference" id="diet_preference" class="form-control">
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="non_vegetarian">Non-Vegetarian</option>
+                    <option value="eggetarian">Eggetarian</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="preferred_payment" class="form-label">Preferred Payment Method</label>
+                <select name="preferred_payment" id="preferred_payment" class="form-control">
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="birthday" class="form-label">Birthday</label>
+                <input type="date" name="birthday" id="birthday" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="special_instructions" class="form-label">Special Instructions</label>
+                <textarea name="special_instructions" id="special_instructions" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">
+                    <input type="checkbox" name="subscribe_newsletter" class="form-check-input">
+                    Subscribe to newsletters and special offers
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Register as Permanent Customer</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0-beta2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
