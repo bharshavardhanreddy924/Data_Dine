@@ -41,7 +41,7 @@ Pillow==9.5.0
 
 # Additional Libraries
 python-dateutil==2.8.2
-typing-extensions==4.7.1
+typing-extensions>=4.10,<5
 
 # Notes:
 # - Ensure the following system packages are installed:
