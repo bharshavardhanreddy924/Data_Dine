@@ -14,7 +14,7 @@ python-dotenv==1.0.0
 cryptography==44.0.0
 
 # Advanced Features
-spacy==3.8.0
+spacy==3.7.4
 pyttsx3==2.90
 SpeechRecognition==3.10.0
 requests==2.31.0
