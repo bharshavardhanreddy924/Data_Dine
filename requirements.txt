@@ -21,7 +21,7 @@ requests==2.31.0
 socketio==0.2.1
 langchain==0.3.14
 groq==0.15.0
-
+langchain_groq
 # Text Processing
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 
