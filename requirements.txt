@@ -6,7 +6,6 @@ Flask-SocketIO==5.5.1
 
 # Database
 pymongo
-bson==0.5.10
 SQLAlchemy==2.0.15
 
 # Authentication and Security
