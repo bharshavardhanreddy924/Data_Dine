@@ -13,13 +13,20 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 
 # MongoDB Configuration
-uri = os.environ.get(
-    "MONGO_URI",
-    "mongodb+srv://bharshavardhanreddy924:uLCmWytTkthYz3xJ@data-dine.5oghq.mongodb.net/?retryWrites=true&w=majority&ssl=true&tlsAllowInvalidCertificates=true"
-)
+from pymongo.mongo_client import MongoClient
 
+import os
+from pymongo.mongo_client import MongoClient
+
+uri = os.environ.get("MONGO_URI")  # Read from environment variable
 client = MongoClient(uri)
 
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 db = client['resta_db']
 
 # File Upload Configuration
@@ -1765,4 +1772,4 @@ def internal_error(error):
 init_db()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run()
