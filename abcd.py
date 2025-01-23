@@ -13,13 +13,16 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 
 # MongoDB Configuration
-
 from pymongo.mongo_client import MongoClient
 
-uri = "mongodb+srv://bharshavardhanreddy924:uLCmWytTkthYz3xJ@data-dine.5oghq.mongodb.net/?retryWrites=true&w=majority&appName=Data-Dine"
+# Replace your connection URI with the correct format
+uri = "mongodb+srv://bharshavardhanreddy924:uLCmWytTkthYz3xJ@data-dine.5oghq.mongodb.net/test?retryWrites=true&w=majority&ssl=true"
 
 # Create a new client and connect to the server
 client = MongoClient(uri)
+
+# You can now use the `client` to interact with your MongoDB database
+
 
 # Send a ping to confirm a successful connection
 try:
