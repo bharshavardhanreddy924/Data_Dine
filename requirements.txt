@@ -1,7 +1,7 @@
 # Core Flask Dependencies
-Flask==2.3.2
+Flask==3.0.3
 Werkzeug==2.3.4
-flask-socketio==5.3.4
+Flask-SocketIO==5.5.1
 
 # Database
 pymongo==4.3.3
@@ -9,32 +9,31 @@ bson==0.5.10
 SQLAlchemy==2.0.15
 
 # Authentication and Security
-flask-login==0.6.2
+Flask-Login==0.6.2
 python-dotenv==1.0.0
-cryptography==41.0.1
+cryptography==44.0.0
 
 # Advanced Features
-spacy==3.5.2
+spacy==3.8.0
 pyttsx3==2.90
 SpeechRecognition==3.10.0
 requests==2.31.0
 socketio==0.2.1
-langchain==0.1.0
-langchain-groq==0.1.0
-groq==0.1.0
+langchain==0.3.14
+groq==0.15.0
 
 # Text Processing
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 
 # Optional but Recommended
-gunicorn==20.1.0  # Production web server
+gunicorn==22.0.0  # Production web server
 python-multipart==0.0.6  # Multipart form data handling
 gevent==22.10.2
 
 # Development and Debugging
-ipython==8.14.0
+ipython==8.30.0
 pytest==7.3.1
-coverage==7.2.7
+coverage==5.3.1
 
 # Image Handling
 Pillow==9.5.0
