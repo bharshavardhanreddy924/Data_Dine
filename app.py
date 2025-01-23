@@ -15,10 +15,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 # MongoDB Configuration
 from pymongo.mongo_client import MongoClient
 
-import os
-from pymongo.mongo_client import MongoClient
-
-uri = os.environ.get("MONGO_URI")  # Read from environment variable
+uri = "mongodb+srv://bharshavardhanreddy924:uLCmWytTkthYz3xJ@data-dine.5oghq.mongodb.net/?retryWrites=true&w=majority&ssl=true&tlsAllowInvalidCertificates=true"
 client = MongoClient(uri)
 
 # Send a ping to confirm a successful connection
