@@ -14,7 +14,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 import certifi
 # MongoDB Configuration
 from pymongo.mongo_client import MongoClient
-uri = "mongodb+srv://bharshavardhanreddy924:uLCmWytTkthYz3xJ@data-dine.5oghq.mongodb.net/?retryWrites=true&w=majority&ssl=true"
+uri = "mongodb+srv://bharshavardhanreddy924:516474Ta@data-dine.5oghq.mongodb.net/?retryWrites=true&w=majority&ssl=true"
 client = MongoClient(uri, tlsCAFile=certifi.where())
 
 # Send a ping to confirm a successful connection
