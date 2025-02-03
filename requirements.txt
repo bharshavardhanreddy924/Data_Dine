@@ -8,6 +8,7 @@ matplotlib
 flask_login
 # Database
 pymongo
+seaborn
 SQLAlchemy==2.0.15
 xhtml2pdf
 # Authentication and Security
