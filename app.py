@@ -294,6 +294,47 @@ def list_customers():
         flash(f'Error retrieving customer list: {str(e)}', 'error')
         return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/delete_customer/<customer_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_customer(customer_id):
+    try:
+        # Verify the customer exists and has the role "customer"
+        customer = db.users.find_one({
+            '_id': ObjectId(customer_id),
+            'role': 'customer'
+        })
+        
+        if not customer:
+            flash('Customer not found or cannot be deleted.', 'error')
+            return redirect(url_for('list_customers'))
+        
+        # Optionally, check if the customer has any active orders.
+        # Adjust the order status field and values as needed.
+        active_order = db.orders.find_one({
+            'customer_id': ObjectId(customer_id),
+            '$or': [
+                {'status': {'$in': ['Pending', 'Processing']}},
+                {'OrderStatus': {'$in': ['Pending', 'Processing']}}
+            ]
+        })
+        if active_order:
+            flash('Cannot delete customer: They have active orders.', 'error')
+            return redirect(url_for('list_customers'))
+        
+        # Delete the customer from the database
+        result = db.users.delete_one({'_id': ObjectId(customer_id)})
+        
+        if result.deleted_count:
+            flash('Customer deleted successfully.', 'success')
+        else:
+            flash('Error deleting customer.', 'error')
+    
+    except Exception as e:
+        flash(f'Error deleting customer: {str(e)}', 'error')
+    
+    return redirect(url_for('list_customers'))
+
 @app.route('/admin/menu')
 @login_required
 @admin_required
@@ -384,23 +425,23 @@ def edit_ingredient(ingredient_id):
 @admin_required
 def delete_ingredient(ingredient_id):
     try:
-        # Check if ingredient is used in any dishes
-        dishes_using_ingredient = db.dishes.find_one({
+        # Check if the ingredient is referenced in any dishes
+        dish_using_ingredient = db.dishes.find_one({
             'ingredients': ObjectId(ingredient_id)
         })
         
-        if dishes_using_ingredient:
-            flash('Cannot delete ingredient: It is currently used in one or more dishes', 'error')
+        if dish_using_ingredient:
+            flash('Cannot delete ingredient: It is currently used in one or more dishes.', 'error')
             return redirect(url_for('admin_inventory'))
         
-        # Delete the ingredient
+        # Delete the ingredient from the database
         result = db.ingredients.delete_one({'_id': ObjectId(ingredient_id)})
         
         if result.deleted_count:
-            flash('Ingredient deleted successfully', 'success')
+            flash('Ingredient deleted successfully.', 'success')
         else:
-            flash('Error deleting ingredient', 'error')
-            
+            flash('Ingredient not found or error deleting ingredient.', 'error')
+    
     except Exception as e:
         flash(f'Error deleting ingredient: {str(e)}', 'error')
     
