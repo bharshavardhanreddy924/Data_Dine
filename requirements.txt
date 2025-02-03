@@ -4,15 +4,18 @@ Werkzeug==3.0.1
 python-dotenv==1.0.0
 Flask-Login==0.6.2
 
-# Database Drivers
-pymongo[srv]==4.6.2
-SQLAlchemy==2.0.15  # Optional for relational DB features
+# Database & ORM
+pymongo[srv]==4.6.1
+SQLAlchemy==2.0.15
 
 # Real-time Communication
-Flask-SocketIO==5.3.6
+Flask-SocketIO==5.5.1
 python-socketio==5.11.2
 gevent==23.9.1
-gevent-websocket==0.10.1
+
+# Security & Cryptography
+cryptography==44.0.0
+certifi==2024.6.2
 
 # AI/ML & NLP
 langchain==0.3.14
@@ -21,40 +24,39 @@ groq==0.15.0
 spacy==3.7.4
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0-py3-none-any.whl
 
-# Security & Cryptography
-cryptography==44.0.0
-certifi==2024.6.2
-
-# Voice & Speech
+# Voice & Speech Processing
 pyttsx3==2.90
 SpeechRecognition==3.10.1
 
+# HTTP & API Integration
+requests==2.31.0
+
 # Data Processing & Visualization
-numpy==1.26.3
 pandas==2.2.1
+numpy==1.26.3
 matplotlib==3.8.2
 seaborn==0.13.2
 
-# PDF & Reporting
+# PDF Generation
 reportlab==4.1.0
 xhtml2pdf==0.2.11
 
 # Image Processing
 Pillow==10.3.0
 
-# HTTP Clients
-requests==2.31.0
-
 # Production Stack
 gunicorn==22.0.0
 greenlet==3.0.3
 
 # Development & Testing
+ipython==8.30.0
 pytest==7.3.1
 coverage==5.3.1
-ipython==8.30.0
 
 # Utilities
 python-dateutil==2.9.0
 typing-extensions==4.11.0
 python-multipart==0.0.6
+
+# System Dependencies (via apt)
+# libespeak1 portaudio19-dev python3-pyaudio
