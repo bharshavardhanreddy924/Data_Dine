@@ -4,10 +4,11 @@ Werkzeug>=3.0.0
 pymongo[srv]==4.6.1 
 Flask-SocketIO==5.5.1
 certifi
+flask_login
 # Database
 pymongo
 SQLAlchemy==2.0.15
-
+xhtml2pdf
 # Authentication and Security
 Flask-Login==0.6.2
 python-dotenv==1.0.0
