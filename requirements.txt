@@ -1,52 +1,60 @@
-# Core Flask Dependencies
-Flask>=3.0.0
-Werkzeug>=3.0.0
-pymongo[srv]==4.6.1 
-Flask-SocketIO==5.5.1
-certifi
-# Database
-pymongo
-SQLAlchemy==2.0.15
-
-# Authentication and Security
-Flask-Login==0.6.2
+# Core Flask Ecosystem
+Flask==3.0.2
+Werkzeug==3.0.1
 python-dotenv==1.0.0
-cryptography==44.0.0
+Flask-Login==0.6.2
 
-# Advanced Features
-pyttsx3==2.90
-SpeechRecognition==3.10.0
-requests==2.31.0
-socketio==0.2.1
+# Database Drivers
+pymongo[srv]==4.6.2
+SQLAlchemy==2.0.15  # Optional for relational DB features
+
+# Real-time Communication
+Flask-SocketIO==5.3.6
+python-socketio==5.11.2
+gevent==23.9.1
+gevent-websocket==0.10.1
+
+# AI/ML & NLP
 langchain==0.3.14
+langchain-groq==0.1.2
 groq==0.15.0
-langchain_groq
-# Text Processing
 spacy==3.7.4
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0-py3-none-any.whl
-# Optional but Recommended
-gunicorn==22.0.0  # Production web server
-python-multipart==0.0.6  # Multipart form data handling
-gevent==22.10.2
 
-# Development and Debugging
-ipython==8.30.0
+# Security & Cryptography
+cryptography==44.0.0
+certifi==2024.6.2
+
+# Voice & Speech
+pyttsx3==2.90
+SpeechRecognition==3.10.1
+
+# Data Processing & Visualization
+numpy==1.26.3
+pandas==2.2.1
+matplotlib==3.8.2
+seaborn==0.13.2
+
+# PDF & Reporting
+reportlab==4.1.0
+xhtml2pdf==0.2.11
+
+# Image Processing
+Pillow==10.3.0
+
+# HTTP Clients
+requests==2.31.0
+
+# Production Stack
+gunicorn==22.0.0
+greenlet==3.0.3
+
+# Development & Testing
 pytest==7.3.1
 coverage==5.3.1
+ipython==8.30.0
 
-# Image Handling
-Pillow==9.5.0
-
-# Additional Libraries
-python-dateutil==2.8.2
-typing-extensions>=4.10,<5
-
-# Notes:
-# - Ensure the following system packages are installed:
-#   - libespeak1 (for pyttsx3 text-to-speech)
-#   - portaudio19-dev (for speech recognition)
-#   - python3-pyaudio (for audio input)
-# - Use a virtual environment for better dependency management:
-#   python3 -m venv venv
-#   source venv/bin/activate  # On Unix/macOS
-#   venv\Scripts\activate  # On Windows
+# Utilities
+python-dateutil==2.9.0
+typing-extensions==4.11.0
+python-multipart==0.0.6
