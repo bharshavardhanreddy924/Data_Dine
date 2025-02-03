@@ -32,6 +32,7 @@
                             <th>Total Orders</th>
                             <th>Total Spent</th>
                             <th>Last Order</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,13 +42,21 @@
                             <td>{{ customer.username }}</td>
                             <td>{{ customer.phone_number or 'N/A' }}</td>
                             <td>{{ customer.total_orders }}</td>
-                            <td><td>₹{{ "%.2f"|format(customer.total_spent or 0) }}</td>
+                            <td>₹{{ "%.2f"|format(customer.total_spent or 0) }}</td>
                             <td>
                                 {% if customer.last_order_date %}
                                     {{ customer.last_order_date.strftime('%Y-%m-%d') }}
                                 {% else %}
                                     No orders yet
                                 {% endif %}
+                            </td>
+                            <td>
+                                <!-- Delete Button Form -->
+                                <form action="{{ url_for('delete_customer', customer_id=customer._id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
