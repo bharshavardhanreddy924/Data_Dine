@@ -335,6 +335,7 @@ def delete_customer(customer_id):
     
     return redirect(url_for('list_customers'))
 
+
 @app.route('/admin/menu')
 @login_required
 @admin_required
@@ -446,6 +447,7 @@ def delete_ingredient(ingredient_id):
         flash(f'Error deleting ingredient: {str(e)}', 'error')
     
     return redirect(url_for('admin_inventory'))
+
 
 # Updated inventory route to include more details
 @app.route('/admin/inventory')
@@ -858,6 +860,378 @@ def update_order_status(order_id):
         flash('Invalid order status', 'error')
     
     return redirect(url_for('admin_orders'))
+
+from io import BytesIO
+from xhtml2pdf import pisa
+from flask import make_response
+
+def render_pdf(template_src, context_dict):
+    """
+    Render HTML template with context and convert it to a PDF file.
+    Returns a BytesIO object containing the PDF.
+    """
+    html = render_template(template_src, **context_dict)
+    result = BytesIO()
+    # Convert HTML to PDF using pisa
+    pdf = pisa.CreatePDF(BytesIO(html.encode("UTF-8")), dest=result)
+    if pdf.err:
+        return None
+    return result
+
+
+@app.route('/customer/order/<order_id>/invoice')
+@login_required
+def download_invoice(order_id):
+    # Retrieve order details using the provided order_id
+    order = db.orders.find_one({
+        '_id': ObjectId(order_id),
+        'customer_id': ObjectId(session['user_id'])  # Ensure the order belongs to the logged-in user
+    })
+    if not order:
+        flash('Order not found', 'error')
+        return redirect(url_for('customer_orders'))
+
+    # For simplicity, assume a fixed tax rate (e.g., 10%)
+    tax_rate = 0.10
+    tax_amount = order['total_price'] * tax_rate
+    grand_total = order['total_price'] + tax_amount
+
+    # Prepare context for the invoice template
+    context = {
+        'order': order,
+        'tax_rate': f"{tax_rate*100:.0f}%",
+        'tax_amount': f"{tax_amount:.2f}",
+        'grand_total': f"{grand_total:.2f}",
+        'date': datetime.now().strftime('%B %d, %Y')
+    }
+    
+    pdf_data = render_pdf('customer/invoice.html', context)
+    if pdf_data is None:
+        flash('Error generating invoice PDF', 'error')
+        return redirect(url_for('order_detail', order_id=order_id))
+    
+    # Create a response with the PDF data and proper headers for download
+    response = make_response(pdf_data.getvalue())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=invoice_{order_id}.pdf'
+    return response
+from datetime import datetime, timedelta
+
+
+import json
+from datetime import datetime, timedelta
+from bson import ObjectId
+from flask import Flask, request, send_file, render_template, flash, redirect, url_for
+from datetime import datetime, timedelta
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import pymongo
+
+from flask import request, redirect, url_for, flash, send_file
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import (
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, ListFlowable, ListItem
+)
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.linecharts import HorizontalLineChart
+from reportlab.graphics.charts.barcharts import VerticalBarChart
+from datetime import datetime, timedelta
+from io import BytesIO
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+@app.route('/sales_report_pdf', methods=['GET', 'POST'])
+def sales_report_pdf():
+    if request.method == 'POST':
+        try:
+            # Retrieve form data
+            start_date = request.form.get('start_date')
+            end_date = request.form.get('end_date')
+
+            if not start_date or not end_date:
+                flash("Please provide both start and end dates.", "error")
+                return redirect(url_for('sales_report'))
+
+            # Convert date strings to datetime objects
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            # Extend end date to include the full day
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+
+            # Fetch orders within the date range and ignore cancelled orders
+            orders = list(db.orders.find({
+                'order_time': {'$gte': start_dt, '$lt': end_dt},
+                'status': {'$nin': ['Cancelled']}
+            }))
+
+            # Calculate key metrics
+            total_revenue = sum(order.get('total_price', 0) for order in orders)
+            number_of_orders = len(orders)
+            avg_order_value = total_revenue / number_of_orders if number_of_orders > 0 else 0
+
+            # Process orders to extract daily sales and top-selling items data
+            top_items = {}
+            daily_sales = {}
+            for order in orders:
+                # Accumulate daily sales data
+                order_date = order['order_time'].date()
+                daily_sales[order_date] = daily_sales.get(order_date, 0) + order.get('total_price', 0)
+
+                # Accumulate dish quantities for top-selling items
+                for item in order.get('dishes', []):
+                    dish_name = item.get('dish_name', 'Unknown')
+                    quantity = item.get('quantity', 0)
+                    top_items[dish_name] = top_items.get(dish_name, 0) + quantity
+
+            # Get the top 5 selling items
+            top_selling = sorted(top_items.items(), key=lambda x: x[1], reverse=True)[:5]
+
+            # Create a PDF document in memory
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter,
+                                    rightMargin=72, leftMargin=72,
+                                    topMargin=72, bottomMargin=72)
+            styles = getSampleStyleSheet()
+            story = []
+
+            # Custom title style
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#1a237e'),
+                spaceAfter=30,
+                alignment=1
+            )
+
+            # Add the report title and period information
+            story.append(Paragraph("DATA-DINE", title_style))
+            story.append(Paragraph(f"Sales Report: {start_date} to {end_date}", styles['Heading2']))
+            story.append(Spacer(1, 20))
+
+            # Narrative summary
+            summary_text = (
+                "This report provides an overview of the sales performance over the selected period. "
+                "It includes key metrics such as total revenue, the number of orders, and the average order value. "
+                "Additionally, the report visualizes the daily sales trends and highlights the top-selling items. "
+                "These insights can help guide business decisions and identify growth opportunities."
+            )
+            story.append(Paragraph(summary_text, styles['BodyText']))
+            story.append(Spacer(1, 20))
+
+            # Key Metrics Table
+            metrics_data = [
+                ['Metric', 'Value'],
+                ['Total Revenue', f'Rs {total_revenue:,.2f}'],
+                ['Number of Orders', str(number_of_orders)],
+                ['Average Order Value', f'Rs {avg_order_value:,.2f}']
+            ]
+            metrics_table = Table(metrics_data, colWidths=[200, 200])
+            metrics_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a237e')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 14),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f3f4f6')),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 12),
+            ]))
+            story.append(metrics_table)
+            story.append(Spacer(1, 20))
+
+            # -----------------------------
+            # Create the Daily Sales Trend Graph
+            # -----------------------------
+            # Adjust the drawing dimensions to fit in half the page width
+            drawing_width = (doc.width / 2) - 20  # leave a little margin inside the cell
+            drawing_height = 200
+
+            # Ensure we have at least one data point
+            dates = sorted(daily_sales.keys())
+            values = [daily_sales[date] for date in dates] if dates else [0]
+
+            daily_sales_drawing = Drawing(drawing_width, drawing_height)
+            lc = HorizontalLineChart()
+            lc.x = 10
+            lc.y = 10
+            lc.width = drawing_width - 20
+            lc.height = drawing_height - 20
+            lc.data = [values]
+            lc.lines[0].strokeColor = colors.HexColor('#1a237e')
+            lc.lines[0].strokeWidth = 2
+            lc.fillColor = colors.HexColor('#e8eaf6')
+
+            # Set up the value axis with a slight margin
+            if values and min(values) != max(values):
+                lc.valueAxis.valueMin = min(values) * 0.9
+                lc.valueAxis.valueMax = max(values) * 1.1
+            else:
+                lc.valueAxis.valueMin = 0
+                lc.valueAxis.valueMax = 10
+            lc.valueAxis.gridStrokeColor = colors.grey
+            lc.valueAxis.labelTextFormat = 'Rs %d'
+            
+            # Format date labels for the category axis
+            lc.categoryAxis.categoryNames = [d.strftime('%Y-%m-%d') for d in dates] if dates else ['No Data']
+            lc.categoryAxis.labels.boxAnchor = 'ne'
+            lc.categoryAxis.labels.angle = 30
+            daily_sales_drawing.add(lc)
+
+            # -----------------------------
+            # Create the Top-Selling Items Bar Chart
+            # -----------------------------
+            top_items_drawing = Drawing(drawing_width, drawing_height)
+            bc = VerticalBarChart()
+            bc.x = 10
+            bc.y = 10
+            bc.width = drawing_width - 20
+            bc.height = drawing_height - 20
+            if top_selling:
+                bc.data = [[qty for _, qty in top_selling]]
+                bc.categoryAxis.categoryNames = [name for name, _ in top_selling]
+            else:
+                bc.data = [[0]]
+                bc.categoryAxis.categoryNames = ['No Data']
+            bc.bars[0].fillColor = colors.HexColor('#1a237e')
+            bc.valueAxis.gridStrokeColor = colors.grey
+            bc.categoryAxis.labels.boxAnchor = 'ne'
+            bc.categoryAxis.labels.angle = 30
+            top_items_drawing.add(bc)
+
+            # -----------------------------
+            # Arrange the two graphs side by side in a table
+            # -----------------------------
+            # Create a table with two cells, one for each graph
+            graphs_table = Table(
+                [[daily_sales_drawing, top_items_drawing]],
+                colWidths=[doc.width / 2, doc.width / 2]
+            )
+            graphs_table.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('BOX', (0, 0), (-1, -1), 0.5, colors.grey)
+            ]))
+
+            # Add headings for the graphs
+            story.append(Paragraph("Sales Visualizations", styles['Heading3']))
+            story.append(Spacer(1, 10))
+            story.append(graphs_table)
+            story.append(Spacer(1, 20))
+
+            # -----------------------------
+            # List Top-Selling Items as a Bullet List
+            # -----------------------------
+            bullet_items = []
+            for name, qty in top_selling:
+                bullet_items.append(ListItem(Paragraph(f"{name}: {qty} sold", styles['BodyText'])))
+            if bullet_items:
+                story.append(Paragraph("Top Selling Items:", styles['Heading3']))
+                story.append(ListFlowable(bullet_items, bulletType='bullet', start='circle'))
+            else:
+                story.append(Paragraph("No top-selling items data available.", styles['BodyText']))
+            story.append(Spacer(1, 20))
+
+            # Build the PDF and return the file
+            doc.build(story)
+            buffer.seek(0)
+            return send_file(
+                buffer,
+                as_attachment=True,
+                download_name="sales_report.pdf",
+                mimetype='application/pdf'
+            )
+
+        except Exception as e:
+            flash(f"Error generating PDF: {str(e)}", "error")
+            return redirect(url_for('sales_report'))
+
+    return "Invalid request method", 405
+
+
+@app.route('/admin/sales_report', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def sales_report():
+    # Default: last 30 days
+    today = datetime.now()
+    default_start = (today - timedelta(days=30)).strftime('%Y-%m-%d')
+    default_end = today.strftime('%Y-%m-%d')
+
+    if request.method == 'POST':
+        start_date = request.form.get('start_date', default_start)
+        end_date = request.form.get('end_date', default_end)
+    else:
+        start_date = request.args.get('start_date', default_start)
+        end_date = request.args.get('end_date', default_end)
+    
+    try:
+        # Parse dates from string
+        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+        end_dt = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)  # include the end date
+        
+        # Find orders within the date range that are not cancelled (if applicable)
+        orders = list(db.orders.find({
+            'order_time': {'$gte': start_dt, '$lt': end_dt},
+            'status': {'$nin': ['Cancelled']}  # Exclude cancelled orders if desired
+        }))
+        
+        total_revenue = sum(order.get('total_price', 0) for order in orders)
+        number_of_orders = len(orders)
+        average_order_value = total_revenue / number_of_orders if number_of_orders > 0 else 0
+
+        # Aggregate top-selling items (by summing up quantities across orders)
+        top_items = {}
+        for order in orders:
+            for item in order.get('dishes', []):
+                dish_id = str(item.get('dish_id'))
+                dish_name = item.get('dish_name') or item.get('DishName', 'N/A')
+                quantity = item.get('quantity', 0)
+                if dish_id in top_items:
+                    top_items[dish_id]['quantity'] += quantity
+                else:
+                    top_items[dish_id] = {'dish_name': dish_name, 'quantity': quantity}
+                    
+        # Sort items descending by quantity and take the top 5
+        top_selling = sorted(top_items.values(), key=lambda x: x['quantity'], reverse=True)[:5]
+        
+        # Cuisine-wise sales aggregation
+        cuisine_sales = {}
+        for order in orders:
+            for item in order.get('dishes', []):
+                dish_id = item.get('dish_id')
+                quantity = item.get('quantity', 0)
+                # Lookup dish details in the dishes collection if dish_id is available
+                dish = db.dishes.find_one({'_id': ObjectId(dish_id)}) if dish_id else None
+                cuisine = dish.get('Cuisine', 'Unknown') if dish else 'Unknown'
+                cuisine_sales[cuisine] = cuisine_sales.get(cuisine, 0) + quantity
+
+        # Prepare lists for Chart.js (labels and values)
+        cuisine_labels = list(cuisine_sales.keys())
+        cuisine_values = [cuisine_sales[label] for label in cuisine_labels]
+        
+        context = {
+            'start_date': start_date,
+            'end_date': end_date,
+            'total_revenue': f"{total_revenue:.2f}",
+            'number_of_orders': number_of_orders,
+            'average_order_value': f"{average_order_value:.2f}",
+            'top_selling': top_selling,
+            'cuisine_labels': json.dumps(cuisine_labels),
+            'cuisine_values': json.dumps(cuisine_values)
+        }
+        return render_template('admin/sales_report.html', **context)
+    except Exception as e:
+        flash(f'Error generating sales report: {str(e)}', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+
 import socketio  # For "SocketIO"
 from flask_socketio import SocketIO
 import spacy  # For "spacy"
@@ -1807,6 +2181,6 @@ def internal_error(error):
 
 # Initialize the database when the app starts
 init_db()
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+
+if __name__ == '__main__':
+    app.run(debug=True)
