@@ -4,6 +4,7 @@ Werkzeug>=3.0.0
 pymongo[srv]==4.6.1 
 Flask-SocketIO==5.5.1
 certifi
+matplotlib
 flask_login
 # Database
 pymongo
