@@ -1,5 +1,4 @@
-# wsgi.py
-from app import app  # Import the Flask app instance from app.py
+from app import app
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=8080)
