@@ -12,11 +12,6 @@
       "dest": "wsgi.py"
     }
   ],
-  "functions": {
-    "api/*": {
-      "runtime": "python3.10"
-    }
-  },
   "env": {
     "PYTHON_VERSION": "3.10"
   }
