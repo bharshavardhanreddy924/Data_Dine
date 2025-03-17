@@ -1,8 +1,23 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
       "dest": "wsgi.py"
     }
-  ]
+  ],
+  "functions": {
+    "api/*": {
+      "runtime": "python3.10"
+    }
+  },
+  "env": {
+    "PYTHON_VERSION": "3.10"
+  }
 }
