@@ -2,12 +2,13 @@
   "build": {
     "env": {
       "PYTHON_VERSION": "3.10"
-    }
+    },
+    "command": "./build.sh"
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "wsgi.py"
     }
   ]
 }
